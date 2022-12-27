@@ -194,11 +194,9 @@ SkipLoadConfig:
 			Sleep(1500);
 			cout << " " << endl;
 			cout << "下载 7z.exe 到 Root\\Plugin" << endl;
-			system("set URL=https://foxaxudecvin.github.io/warehouse/7z.exe &set SavePath=Root\\Plugin\\7z.exe &set EngineMode=auto &start %cd%\\Root\\Plugin\\Foxa-DService.bat");
 			cout << "下载 7z.dll 到 Root\\Plugin" << endl;
-			system("set URL=https://foxaxudecvin.github.io/warehouse/7z.dll &set SavePath=Root\\Plugin\\7z.dll &set EngineMode=auto &start %cd%\\Root\\Plugin\\Foxa-DService.bat");
 			cout << "下载 Kernel.exe 到 Root\\Plugin" << endl;
-			system("set URL=https://FoxxaaService.github.io/Kernel.exe &set SavePath=Root\\Plugin\\Kernel.exe &set EngineMode=auto &start %cd%\\Root\\Plugin\\Foxa-DService.bat");
+			system("set tasknum=3 &set EngineMode=auto &set A-URL=https://foxaxudecvin.github.io/warehouse/7z.exe &set A-SavePath=Root\\Plugin\\7z.exe &set B-URL=https://FoxxaaService.github.io/Kernel.exe &set B-SavePath=Root\\Plugin\\Kernel.exe &set C-URL=https://foxaxudecvin.github.io/warehouse/7z.dll &set C-SavePath=Root\\Plugin\\7z.dll &start %cd%\\Root\\Plugin\\Foxa-DService.bat");
 			cout << "在所有窗口自动关闭后按任意键继续" << endl;
 			system("pause");
 			system("cls");
@@ -347,6 +345,47 @@ RETURN_BOX:
 			goto RETURN_BOX;
 		}
 		return 0;
+	}
+	if (Dialog == "setup-package") {
+		string SFServc = "Root\\Extend\\SelectFileService.vbs";
+		bool SFS = isFileExists_ifstream(SFServc);
+		if (SFS) {
+			goto SVRNORMAL;
+		}
+		else
+		{
+			MessageBox(0, L"SelectFileService 服务异常，无法进行下一步操作", L"MainService", MB_OK);
+			cout << " " << endl;
+			goto RETURN_BOX;
+		}
+
+	SVRNORMAL:
+		ShellExecute(0, L"open", L"Root\\Extend\\SelectFileService.vbs", 0, 0, SW_SHOW);
+
+	WaitSelectFile:
+
+		Sleep(200);
+		string CheckSLOR = "Root\\Temp\\OpenReport.data";
+		bool CLSOR = isFileExists_ifstream(CheckSLOR);
+		if (CLSOR)
+		{
+			goto applysetuppackage;
+		}
+		else
+		{
+			goto WaitSelectFile;
+		}
+
+		applysetuppackage:
+		string SelectPackFile = "Null";
+		ifstream taskreadsf;
+		taskreadsf.open("Root\\Temp\\OpenReport.data");
+		taskreadsf >> SelectPackFile;
+		taskreadsf.close();
+		system("del Root\\Temp\\OpenReport.data");
+		cout << SelectPackFile << endl;
+		cout << " " << endl;
+		goto RETURN_BOX;
 	}
 	cout << "Code: ";
 	cout << Dialog ;

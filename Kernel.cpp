@@ -90,7 +90,7 @@ int main() {
 		{
 			system("del Root\\Temp\\ASK.data");
 		}
-		system("set URL=https://foxaxudecvin.github.io/DownloadLink/AutoSetupKernel.data &set SavePath=Root\\Temp\\ASK.data &set EngineMode=auto &start %cd%\\Root\\Plugin\\Foxa-DService.bat");
+		system("set A-URL=https://foxaxudecvin.github.io/DownloadLink/AutoSetupKernel.data &set A-SavePath=Root\\Temp\\ASK.data &set tasknum=1 &set EngineMode=auto &start %cd%\\Root\\Plugin\\Foxa-DService.bat");
 
 		ScanDownloadCompleteASK:
 
@@ -108,7 +108,7 @@ int main() {
 
 		cout << "正在下载安装包" << endl;
 
-		system("set/p URL=<Root\\Temp\\ASK.data &set SavePath=Root\\Temp\\ASPack.zip &set EngineMode=auto &Root\\Plugin\\Foxa-DService.bat");
+		system("set/p A-URL=<Root\\Temp\\ASK.data &set A-SavePath=Root\\Temp\\ASPack.zip &set tasknum=1 &set EngineMode=auto &Root\\Plugin\\Foxa-DService.bat");
 
 	ScanDownloadCompleteASPack:
 
