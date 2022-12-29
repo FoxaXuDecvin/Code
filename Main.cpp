@@ -16,8 +16,8 @@ int main(int argc, char** argv) {
 	RELOAD:
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char version[] = "Build_0003";
-	char pubdate[] = "20221227";
+	char version[] = "Build_0004";
+	char pubdate[] = "20221228";
 
 	string filename = "Root\\SettingInfo.txt";
 	bool ret = isFileExists_ifstream(filename);
@@ -196,9 +196,7 @@ SkipLoadConfig:
 			cout << "下载 7z.exe 到 Root\\Plugin" << endl;
 			cout << "下载 7z.dll 到 Root\\Plugin" << endl;
 			cout << "下载 Kernel.exe 到 Root\\Plugin" << endl;
-			system("set tasknum=3 &set EngineMode=auto &set A-URL=https://foxaxudecvin.github.io/warehouse/7z.exe &set A-SavePath=Root\\Plugin\\7z.exe &set B-URL=https://FoxxaaService.github.io/Kernel.exe &set B-SavePath=Root\\Plugin\\Kernel.exe &set C-URL=https://foxaxudecvin.github.io/warehouse/7z.dll &set C-SavePath=Root\\Plugin\\7z.dll &start %cd%\\Root\\Plugin\\Foxa-DService.bat");
-			cout << "在所有窗口自动关闭后按任意键继续" << endl;
-			system("pause");
+			system("set tasknum=3 &set EngineMode=auto &set A-URL=https://foxaxudecvin.github.io/warehouse/7z.exe &set A-SavePath=Root\\Plugin\\7z.exe &set B-URL=https://FoxxaaService.github.io/Kernel.exe &set B-SavePath=Root\\Plugin\\Kernel.exe &set C-URL=https://foxaxudecvin.github.io/warehouse/7z.dll &set C-SavePath=Root\\Plugin\\7z.dll &%cd%\\Root\\Plugin\\Foxa-DService.bat");
 			system("cls");
 			cout << "正在验证你的下载是否完整" << endl;
 
@@ -382,15 +380,138 @@ RETURN_BOX:
 		taskreadsf.open("Root\\Temp\\OpenReport.data");
 		taskreadsf >> SelectPackFile;
 		taskreadsf.close();
+		cout << "正在验证安装包" << endl;
+		system("set LCode=getpack &set/p FilePath=<Root\\Temp\\OpenReport.data &Root\\Plugin\\Kernel.exe");
 		system("del Root\\Temp\\OpenReport.data");
-		cout << SelectPackFile << endl;
+
+	WAITRETURN_REPORT_SP:
+		
+		Sleep(1000);
+
+		string WaitReturnKernelSP = "Root\\Temp\\kernel-report-setpk.data";
+		bool WRKSP = isFileExists_ifstream(WaitReturnKernelSP);
+		if (WRKSP) {
+			goto CheckReturnKernelSP;
+		}
+		else
+		{
+			goto WAITRETURN_REPORT_SP;
+		}
+
+		CheckReturnKernelSP:
+		
+		string ApplyExtend = "False";
+		ifstream taskcrksp;
+		taskcrksp.open("Root\\Temp\\kernel-report-setpk.data");
+		taskcrksp >> ApplyExtend;
+		taskcrksp.close();
+
+		system("del Root\\Temp\\kernel-report-setpk.data");
+
+		if (ApplyExtend == "True") {
+			MessageBox(0, L"安装完成，使用 list-tool 指令即可打开工具目录", L"MainService", MB_OK);
+			cout << " " << endl;
+			system("del Root\\Temp\\KR-PackCertData.data");
+			system("del Root\\Temp\\GetFileSha256.data");
+			system("del Root\\Temp\\GetURLCertCode.data");
+			system("rd /s /q Root\\Temp\\PackInstallerTemp");
+			system("cls");
+			goto RETURN_BOX;
+		}
+		else
+		{
+			MessageBox(0, L"安装已被取消， 安装程序已撤销你所做的所有更改", L"MainService", MB_OK);
+			cout << " " << endl;
+			system("del Root\\Temp\\KR-PackCertData.data");
+			system("del Root\\Temp\\GetFileSha256.data");
+			system("del Root\\Temp\\GetURLCertCode.data");
+			system("rd /s /q Root\\Temp\\PackInstallerTemp");
+			system("cls");
+			goto RETURN_BOX;
+		}
+		cout << " " << endl;
+	}
+	if (Dialog == "remove") {
+
+		string CheckSVRFXI = "Root\\Extend\\PackTool-FXInstaller.Bat";
+		bool CSVRFXI = isFileExists_ifstream(CheckSVRFXI);
+		if (CSVRFXI) {
+			goto PassCSVRFXI;
+		}
+		else
+		{
+			MessageBox(0, L"PackTool-FXInstaller 服务异常，无法执行相关命令", L"MainService", MB_OK);
+			cout << " " << endl;
+			goto RETURN_BOX;
+		}
+
+	PassCSVRFXI:
+		cout << endl;
+		system("dir Root\\PackTool");
+		cout << "输入安装包PackDir路径" << endl;
+		string PackDirDL = "Null.noanytype";
+		cout << "Root\\PackTool\\>";
+		getline(cin, PackDirDL);
+
+		ofstream PackDirDialog;
+		PackDirDialog.open("Root\\Temp\\PDDialog.data");
+		PackDirDialog << PackDirDL << endl;
+		PackDirDialog.close();
+
+		system("set WorkMode=remove &set/p PackDir=<Root\\Temp\\PDDialog.data &start Root\\Extend\\PackTool-FXInstaller.Bat");
+		system("del Root\\Temp\\PDDialog.data");
 		cout << " " << endl;
 		goto RETURN_BOX;
 	}
-	cout << "Code: ";
-	cout << Dialog ;
-	cout << " is not a command and program" << endl;
-	cout << "Check your type is Correct" << endl;
-	cout << " " << endl;
-	goto RETURN_BOX;
+	if (Dialog == "list-tool") {
+		string OpenToolNameCK = "Null.noanytype";
+		system("dir Root\\Reg");
+		cout << "直接输入名称打开工具: 末尾不加 .fxlink " << endl ;
+		cout << endl;
+		goto RETURN_BOX;
+
+	}
+
+	ofstream RunExtendDialogDialog;
+	RunExtendDialogDialog.open("Root\\Temp\\RunExtendDialog.data");
+	RunExtendDialogDialog << "Root\\Reg\\";
+	RunExtendDialogDialog << Dialog;
+	RunExtendDialogDialog << ".fxlink" << endl;
+	RunExtendDialogDialog.close();
+
+	string RunExtendCode = "nul";
+	ifstream REDExistCheck;
+	REDExistCheck.open("Root\\Temp\\RunExtendDialog.data");
+	REDExistCheck >> RunExtendCode;
+	REDExistCheck.close();
+
+	bool CheckRECD = isFileExists_ifstream(RunExtendCode);
+	if (CheckRECD)
+	{
+		string CHECKRES = "Root\\Extend\\RunExtendService.Bat";
+		bool CSRES = isFileExists_ifstream(CHECKRES);
+		if (CSRES) {
+			goto PassCheckSVRPFX;
+		}
+		else
+		{
+			MessageBox(0, L"RunExtendService 服务异常，无法运行工具", L"MainService", MB_OK);
+			cout << " " << endl;
+			goto RETURN_BOX;
+		}
+	    PassCheckSVRPFX:
+		system("set/p OpenLink=<Root\\Temp\\RunExtendDialog.data &start Root\\Extend\\RunExtendService.Bat");
+		system("del Root\\Temp\\RunExtendDialog.data");
+		cout << " " << endl;
+		goto RETURN_BOX;
+	}
+	else
+	{
+		cout << "Code: ";
+		cout << Dialog;
+		cout << " is not a command and tool" << endl;
+		cout << "Check your type is Correct" << endl;
+		cout << " " << endl;
+		goto RETURN_BOX;
+	}
 }
