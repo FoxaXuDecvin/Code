@@ -16,8 +16,8 @@ int main(int argc, char** argv) {
 	RELOAD:
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char version[] = "Build_0004";
-	char pubdate[] = "20221228";
+	char version[] = "Build_0006";
+	char pubdate[] = "20221230";
 
 	string filename = "Root\\SettingInfo.txt";
 	bool ret = isFileExists_ifstream(filename);
@@ -303,7 +303,19 @@ RETURN_BOX:
 		goto RETURN_BOX;
 	}
 	if (Dialog == "help") {
-		cout << "No Thing to here" << endl;
+		cout << "Help Center" << endl << endl;
+		cout << "exit  - Close" << endl;
+		cout << "version  -show version info" << endl;
+		cout << "help        -get help information" << endl;
+		cout << "clear       -clear screen" << endl;
+		cout << "time       -debug for show time" << endl;
+		cout << "reload    -Reload All Settings" << endl;
+		cout << "openwork   -Open Root Folder" << endl;
+		cout << "admin      -Run To Administrator" << endl;
+		cout << "setup-package  -Install Package" << endl;
+		cout << "remove     -Uninstall Package" << endl;
+		cout << "list-tool    -List All Tools" << endl << endl;
+		cout << "Copyright FoxaXu 2022" << endl << endl << endl;
 		cout << " " << endl;
 		goto RETURN_BOX;
 	}

@@ -193,8 +193,15 @@ int main() {
 			return 0;
 		}
 	PassSetupExtend:
+		cout << "正在安装附加插件" << endl;
+		system("set A-URL=https://foxxaaservice.github.io/PackStore/Download/PackStore-Release.zip &set A-SavePath=Root\\Temp\\TempStoreSetup.zip &set tasknum=1 &set EngineMode=auto &Root\\Plugin\\Foxa-DService.bat");
+		system("Root\\Plugin\\7z.exe x -oRoot\\Temp\\PackStoreSetup Root\\Temp\\TempStoreSetup.zip >nul");
+
+		system("set WorkMode=auto &set InstallPack=Root\\Temp\\PackStoreSetup&Root\\Extend\\PackTool-FXInstaller.Bat");
+		system("rd /s /q Root\\Temp\\PackStoreSetup");
+		system("del /q Root\\Temp\\TempStoreSetup.zip");
+
 		system("cls");
-		MessageBox(0, L"安装完成，软件将会自动重启", L"Kernel Prepare Setup", MB_OK);
 		system("set/p startprocess=<Root\\ProcessName.cfg &start cmd /c %startprocess%");
 		return 0;
 	}
