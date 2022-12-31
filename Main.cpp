@@ -159,7 +159,7 @@ SkipLoadConfig:
 			}
 			else
 			{
-				MessageBox(0, L"安装失败，文件下载异常，请尝试删除Root目录后重新安装，安装过程中请不要随意关闭弹出的窗口", L"MainService", MB_OK);
+				MessageBox(0, L"初始化失败，请检查你的网络是否正常，如果你正在使用Windows7系统请启用TLS服务和安装KB3140245更新, 下载服务可能会触发 Windows Defender警报，请自行处理", L"MainService", MB_OK);
 				return 0;
 			}
 
