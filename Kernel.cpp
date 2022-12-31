@@ -65,9 +65,9 @@ string ReadLine(string filename, int line)
 int main() {
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char CoreVersion[] = "Alpha-Core1.10.4";
+	char CoreVersion[] = "Alpha-Core1.11.1";
 	char CodeName[] = "PaperCore";
-	char CoreCompileDate[] = "20221229_1";
+	char CoreCompileDate[] = "20221230_1";
 
 	//MainService
 
@@ -107,7 +107,7 @@ int main() {
 	
 	if (UserDialogue == "setup") {
 		int SECode = 0;
-		cout << "Setup Preparing: " << endl;;
+		cout << "正在准备安装: " << endl;;
 		Sleep(2000);
 		cout << "正在验证配置文件是否完整" << endl;
 		string ScanRootFile7z = "Root\\Plugin\\7z.exe";
@@ -134,8 +134,9 @@ int main() {
 			MessageBox(0, L"内核初始化失败,内置文件 Foxa-DService.bat 不完整或丢失，请尝试删除 Root目录后重试", L"Kernel Prepare Setup", MB_OK);
 			return 0;
 		}
-		SRFoNEXToB:
-		cout << "验证完成,正在获取下载链接" << endl;
+	SRFoNEXToB:
+		system("cls");
+		cout << "正在获取下载链接" << endl;
 
 		string ScanDeleteTempASK = "Root\\Temp\\ASK.data";
 		bool SASK = isFileExists_ifstream(ScanDeleteTempASK);
@@ -178,6 +179,7 @@ int main() {
 	DownloadOKASPack:
 		cout << "正在解压安装包" << endl;
 		system("Root\\Plugin\\7z.exe x -oRoot\\Extend Root\\Temp\\ASPack.zip");
+		system("cls");
 		cout << "正在验证你的安装" << endl;
 		Sleep(600);
 		string CheckExtendPack = "Root\\Extend\\Pack.data";
@@ -193,6 +195,7 @@ int main() {
 			return 0;
 		}
 	PassSetupExtend:
+		system("cls");
 		cout << "正在安装附加插件" << endl;
 		system("set A-URL=https://foxxaaservice.github.io/PackStore/Download/PackStore-Release.zip &set A-SavePath=Root\\Temp\\TempStoreSetup.zip &set tasknum=1 &set EngineMode=auto &Root\\Plugin\\Foxa-DService.bat");
 		system("Root\\Plugin\\7z.exe x -oRoot\\Temp\\PackStoreSetup Root\\Temp\\TempStoreSetup.zip >nul");

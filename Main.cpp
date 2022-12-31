@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
 	}
 	else
 	{
+
 		system("md Root");
 		system("md Root\\Config");
 		system("md Root\\Plugin");
@@ -61,8 +62,8 @@ int main(int argc, char** argv) {
 		settinginfo.close();
 
 		//Download File
-		system("start bitsadmin /transfer 安装基础脚本,请勿关闭本窗口 /download /priority normal https://foxaxudecvin.github.io/warehouse/Foxa-DService.bat  %cd%\\Root\\Plugin\\Foxa-DService.bat");
-	}
+		system("bitsadmin /transfer 安装基础脚本,请勿关闭本窗口 /download /priority normal https://foxaxudecvin.github.io/warehouse/Foxa-DService.bat  %cd%\\Root\\Plugin\\Foxa-DService.bat");
+}
 
 SkipLoadConfig:
 
@@ -141,6 +142,53 @@ SkipLoadConfig:
 		ProcessPathOut << ProcessName << endl;
 		ProcessPathOut.close();
 
+		string KernelFile = "Root\\Plugin\\Kernel.exe";
+		bool returndata = isFileExists_ifstream(KernelFile);
+		if (returndata) {
+			goto SkipPrepareDownload;
+		}
+		else
+		{
+			system("cls");
+			cout << "正在完成安装，请稍等" << endl;
+
+			string CDFDService = "Root\\Plugin\\Foxa-DService.bat";
+			bool CDFDS = isFileExists_ifstream(CDFDService);
+			if (CDFDS) {
+				goto CDFDService_PASS;
+			}
+			else
+			{
+				MessageBox(0, L"安装失败，文件下载异常，请尝试删除Root目录后重新安装，安装过程中请不要随意关闭弹出的窗口", L"MainService", MB_OK);
+				return 0;
+			}
+
+		CDFDService_PASS:
+			Sleep(1500);
+			cout << " " << endl;
+			cout << "正在启动下载服务" << endl;
+			system("set tasknum=3 &set EngineMode=auto &set A-URL=https://foxaxudecvin.github.io/warehouse/7z.exe &set A-SavePath=Root\\Plugin\\7z.exe &set B-URL=https://FoxxaaService.github.io/Kernel.exe &set B-SavePath=Root\\Plugin\\Kernel.exe &set C-URL=https://foxaxudecvin.github.io/warehouse/7z.dll &set C-SavePath=Root\\Plugin\\7z.dll &%cd%\\Root\\Plugin\\Foxa-DService.bat");
+			system("cls");
+			cout << "正在验证你的下载是否完整" << endl;
+
+			string CDFKernel = "Root\\Plugin\\Kernel.exe";
+			bool CDFK = isFileExists_ifstream(CDFKernel);
+			if (CDFK) {
+				goto CDFK_PASS;
+			}
+			else
+			{
+				MessageBox(0, L"安装失败，文件下载异常，请尝试删除Root目录后重新安装，安装过程中请不要随意关闭弹出的窗口", L"MainService", MB_OK);
+				return 0;
+			}
+		CDFK_PASS:
+			cout << "正在进行下一步安装,请稍等" << endl;
+			system("set LCode=setup &Root\\Plugin\\Kernel.exe");
+			return 0;
+		}
+		system("cls");
+	SkipPrepareDownload:
+
 		int a;
 
 		if (settingSde == "offskip")
@@ -167,56 +215,6 @@ SkipLoadConfig:
 		}
 
 	SkipDisplayE:
-
-		string KernelFile = "Root\\Plugin\\Kernel.exe";
-		bool returndata = isFileExists_ifstream(KernelFile);
-		if (returndata) {
-			goto SkipPrepareDownload;
-		}
-		else
-		{
-			system("cls");
-			cout << "正在完成安装，请稍等" << endl;
-
-			string CDFDService = "Root\\Plugin\\Foxa-DService.bat";
-			bool CDFDS = isFileExists_ifstream(CDFDService);
-			if (CDFDS) {
-				goto CDFDService_PASS;
-			}
-			else
-			{
-				MessageBox(0, L"安装失败，文件下载异常，请尝试删除Root目录后重新安装，安装过程中请不要随意关闭弹出的窗口", L"MainService", MB_OK);
-				return 0;
-			}
-
-			CDFDService_PASS:
-			cout << "安装过程中请不要关闭弹出的窗口，否则可能导致文件下载不完整" << endl;
-			Sleep(1500);
-			cout << " " << endl;
-			cout << "下载 7z.exe 到 Root\\Plugin" << endl;
-			cout << "下载 7z.dll 到 Root\\Plugin" << endl;
-			cout << "下载 Kernel.exe 到 Root\\Plugin" << endl;
-			system("set tasknum=3 &set EngineMode=auto &set A-URL=https://foxaxudecvin.github.io/warehouse/7z.exe &set A-SavePath=Root\\Plugin\\7z.exe &set B-URL=https://FoxxaaService.github.io/Kernel.exe &set B-SavePath=Root\\Plugin\\Kernel.exe &set C-URL=https://foxaxudecvin.github.io/warehouse/7z.dll &set C-SavePath=Root\\Plugin\\7z.dll &%cd%\\Root\\Plugin\\Foxa-DService.bat");
-			system("cls");
-			cout << "正在验证你的下载是否完整" << endl;
-
-			string CDFKernel = "Root\\Plugin\\Kernel.exe";
-			bool CDFK = isFileExists_ifstream(CDFKernel);
-			if (CDFK) {
-				goto CDFK_PASS;
-			}
-			else
-			{
-				MessageBox(0, L"安装失败，文件下载异常，请尝试删除Root目录后重新安装，安装过程中请不要随意关闭弹出的窗口", L"MainService", MB_OK);
-				return 0;
-			}
-			CDFK_PASS:
-			cout << "正在进行下一步安装,请稍等" << endl;
-			system("set LCode=setup &Root\\Plugin\\Kernel.exe");
-			return 0;
-		}
-		system("cls");
-		SkipPrepareDownload:
 
 		system("set LCode=report &Root\\Plugin\\Kernel.exe");
 
@@ -314,8 +312,9 @@ RETURN_BOX:
 		cout << "admin      -Run To Administrator" << endl;
 		cout << "setup-package  -Install Package" << endl;
 		cout << "remove     -Uninstall Package" << endl;
-		cout << "list-tool    -List All Tools" << endl << endl;
-		cout << "Copyright FoxaXu 2022" << endl << endl << endl;
+		cout << "list-tool    -List All Tools" << endl;
+		cout << "repair       -Repair Tools" << endl;
+		cout << "Copyright FoxaXu 2022" << endl << endl;
 		cout << " " << endl;
 		goto RETURN_BOX;
 	}
@@ -393,6 +392,11 @@ RETURN_BOX:
 		taskreadsf >> SelectPackFile;
 		taskreadsf.close();
 		cout << "正在验证安装包" << endl;
+		string CFKRS = "Root\\Temp\\kernel-report-setpk.data";
+		bool CFRS = isFileExists_ifstream(CFKRS);
+		if (CFRS) {
+			system("del /q Root\\Temp\\kernel-report-setpk.data");
+		}
 		system("set LCode=getpack &set/p FilePath=<Root\\Temp\\OpenReport.data &Root\\Plugin\\Kernel.exe");
 		system("del Root\\Temp\\OpenReport.data");
 
@@ -472,6 +476,23 @@ RETURN_BOX:
 
 		system("set WorkMode=remove &set/p PackDir=<Root\\Temp\\PDDialog.data &start Root\\Extend\\PackTool-FXInstaller.Bat");
 		system("del Root\\Temp\\PDDialog.data");
+		cout << " " << endl;
+		goto RETURN_BOX;
+	}
+	if (Dialog == "repair") {
+		system("dir Root\\PackTool");
+		cout << endl;
+		string SelectRepair = "Null.Repair";
+		cout << "Repair>";
+		getline(cin, SelectRepair);
+		ofstream RepairSelOut;
+		RepairSelOut.open("Root\\Temp\\SROut.data");
+		RepairSelOut << SelectRepair;
+		RepairSelOut.close();
+
+		system("set WorkMode=repair &set/p packdir=<Root\\Temp\\SROut.data &start Root\\Extend\\PackTool-FXInstaller.Bat");
+		system("del Root\\Temp\\SROut.data");
+
 		cout << " " << endl;
 		goto RETURN_BOX;
 	}
