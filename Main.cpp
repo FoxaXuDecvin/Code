@@ -16,8 +16,8 @@ int main(int argc, char** argv) {
 	RELOAD:
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char version[] = "Build_0006";
-	char pubdate[] = "20221230";
+	char version[] = "Build_1001";
+	char pubdate[] = "20230101";
 
 	string filename = "Root\\SettingInfo.txt";
 	bool ret = isFileExists_ifstream(filename);
