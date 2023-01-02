@@ -4,6 +4,8 @@
 #include<string>
 #include<unistd.h>
 #include<stdio.h>
+#include<urlmon.h>
+#pragma comment(lib,"URlmon.lib")
 
 using namespace std;
 
@@ -16,7 +18,7 @@ int main(int argc, char** argv) {
 	RELOAD:
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char version[] = "Build_1002";
+	char version[] = "Build_1011";
 	char pubdate[] = "20230102";
 
 	string filename = "Root\\SettingInfo.txt";
@@ -62,7 +64,14 @@ int main(int argc, char** argv) {
 		settinginfo.close();
 
 		//Download File
-		system("bitsadmin /transfer 安装基础脚本,请勿关闭本窗口 /download /priority normal https://foxaxudecvin.github.io/warehouse/Foxa-DService.bat  %cd%\\Root\\Plugin\\Foxa-DService.bat");
+		cout << "正在下载FXDS" << endl;
+		HRESULT PrepFXDS = URLDownloadToFileW(
+			nullptr,
+			L"https://foxaxudecvin.github.io/warehouse/FXDS.exe",
+			L"Root\\Plugin\\FXDS.exe",
+			0,
+			nullptr
+		);
 }
 
 SkipLoadConfig:
@@ -153,7 +162,7 @@ SkipLoadConfig:
 			system("cls");
 			cout << "正在完成安装，请稍等" << endl;
 
-			string CDFDService = "Root\\Plugin\\Foxa-DService.bat";
+			string CDFDService = "Root\\Plugin\\FXDS.exe";
 			bool CDFDS = isFileExists_ifstream(CDFDService);
 			if (CDFDS) {
 				goto CDFDService_PASS;
@@ -168,7 +177,9 @@ SkipLoadConfig:
 			Sleep(1500);
 			cout << " " << endl;
 			cout << "正在启动下载服务" << endl;
-			system("set tasknum=3 &set EngineMode=auto &set A-URL=https://foxaxudecvin.github.io/warehouse/7z.exe &set A-SavePath=Root\\Plugin\\7z.exe &set B-URL=https://FoxxaaService.github.io/Kernel.exe &set B-SavePath=Root\\Plugin\\Kernel.exe &set C-URL=https://foxaxudecvin.github.io/warehouse/7z.dll &set C-SavePath=Root\\Plugin\\7z.dll &%cd%\\Root\\Plugin\\Foxa-DService.bat");
+			system("set setURL=https://foxaxudecvin.github.io/warehouse/7z.exe&set setsp=Root\\Plugin\\7z.exe&Root\\Plugin\\FXDS.exe");
+			system("set setURL=https://foxxaaservice.github.io/Kernel.exe&set setsp=Root\\Plugin\\Kernel.exe&Root\\Plugin\\FXDS.exe");
+			system("set setURL=https://foxaxudecvin.github.io/warehouse/7z.dll&set setsp=Root\\Plugin\\7z.dll&Root\\Plugin\\FXDS.exe");
 			system("cls");
 			cout << "正在验证你的下载是否完整" << endl;
 
