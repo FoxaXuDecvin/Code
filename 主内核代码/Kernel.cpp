@@ -67,7 +67,7 @@ int main() {
 
 	char CoreVersion[] = "Alpha-Core1.12.1";
 	char CodeName[] = "PaperCore";
-	char CoreCompileDate[] = "20230102_1";
+	char CoreCompileDate[] = "20230102_2";
 
 	//MainService
 
@@ -124,7 +124,7 @@ int main() {
 		}
 	SRFoNEXToA:
 
-		string ScanRootFileDService = "Root\\Plugin\\Foxa-DService.bat";
+		string ScanRootFileDService = "Root\\Plugin\\FXDS.exe";
 		bool SRFoDS = isFileExists_ifstream(ScanRootFileDService);
 		if (SRFoDS)
 		{
@@ -132,7 +132,7 @@ int main() {
 		}
 		else
 		{
-			MessageBox(0, L"内核初始化失败,内置文件 Foxa-DService.bat 不完整或丢失，请尝试删除 Root目录后重试", L"Kernel Prepare Setup", MB_OK);
+			MessageBox(0, L"内核初始化失败,内置文件 FXDS.exe 不完整或丢失，请尝试删除 Root目录后重试", L"Kernel Prepare Setup", MB_OK);
 			return 0;
 		}
 	SRFoNEXToB:
@@ -145,7 +145,7 @@ int main() {
 		{
 			system("del Root\\Temp\\ASK.data");
 		}
-		system("set A-URL=https://foxaxudecvin.github.io/DownloadLink/AutoSetupKernel.data &set A-SavePath=Root\\Temp\\ASK.data &set tasknum=1 &set EngineMode=auto &%cd%\\Root\\Plugin\\Foxa-DService.bat");
+		system("set setURL=https://foxaxudecvin.github.io/DownloadLink/AutoSetupKernel.data &set setSP=Root\\Temp\\ASK.data &Root\\Plugin\\FXDS.exe");
 
 		ScanDownloadCompleteASK:
 
@@ -163,7 +163,7 @@ int main() {
 
 		cout << "正在下载安装包" << endl;
 
-		system("set/p A-URL=<Root\\Temp\\ASK.data &set A-SavePath=Root\\Temp\\ASPack.zip &set tasknum=1 &set EngineMode=auto &Root\\Plugin\\Foxa-DService.bat");
+		system("set/p setURL=<Root\\Temp\\ASK.data &set setSP=Root\\Temp\\ASPack.zip &Root\\Plugin\\FXDS.exe");
 
 	ScanDownloadCompleteASPack:
 
@@ -198,7 +198,7 @@ int main() {
 	PassSetupExtend:
 		system("cls");
 		cout << "正在安装附加插件" << endl;
-		system("set A-URL=https://foxxaaservice.github.io/PackStore/Download/PackStore-Release.zip &set A-SavePath=Root\\Temp\\TempStoreSetup.zip &set tasknum=1 &set EngineMode=auto &Root\\Plugin\\Foxa-DService.bat");
+		system("set setURL=https://foxxaaservice.github.io/PackStore/Download/PackStore-Release.zip &set setSP=Root\\Temp\\TempStoreSetup.zip &Root\\Plugin\\FXDS.exe");
 		system("Root\\Plugin\\7z.exe x -oRoot\\Temp\\PackStoreSetup Root\\Temp\\TempStoreSetup.zip >nul");
 
 		system("set WorkMode=auto &set InstallPack=Root\\Temp\\PackStoreSetup&Root\\Extend\\PackTool-FXInstaller.Bat");
@@ -398,7 +398,7 @@ int main() {
 	OutCertCodeData << SHA256Code << endl;
 	OutCertCodeData.close();
 
-	system("set tasknum=1 &set EngineMode=auto &set/p A-URL=<Root\\Temp\\PackInstallerTemp\\Security\\CertURL.cfg &set A-SavePath=Root\\Temp\\GetURLCertCode.data &start /b Root\\Plugin\\Foxa-DService.bat");
+	system("set/p setURL=<Root\\Temp\\PackInstallerTemp\\Security\\CertURL.cfg &set setSP=Root\\Temp\\GetURLCertCode.data &start /b Root\\Plugin\\FXDS.exe");
 
 	Sleep(6000);
 
@@ -427,7 +427,7 @@ int main() {
 
 	Try_again_VCert:
 
-		system("set tasknum=1 &set EngineMode=auto &set/p A-URL=<Root\\Temp\\PackInstallerTemp\\Security\\CertURL.cfg &set A-SavePath=Root\\Temp\\GetURLCertCode.data &start /b Root\\Plugin\\Foxa-DService.bat");
+		system("set/p setURL=<Root\\Temp\\PackInstallerTemp\\Security\\CertURL.cfg &set setSP=Root\\Temp\\GetURLCertCode.data &start /b Root\\Plugin\\FXDS.exe");
 
 		Sleep(12000);
 
