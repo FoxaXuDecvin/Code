@@ -322,11 +322,13 @@ RETURN_BOX:
 		cout << "reload    -Reload All Settings" << endl;
 		cout << "openwork   -Open Root Folder" << endl;
 		cout << "admin      -Run To Administrator" << endl;
+		cout << "download    -Download File" << endl;
 		cout << "setup-package  -Install Package" << endl;
 		cout << "remove     -Uninstall Package" << endl;
 		cout << "list-tool    -List All Tools" << endl;
 		cout << "repair       -Repair Tools" << endl;
-		cout << "Copyright FoxaXu 2022" << endl << endl;
+		cout << endl;
+		cout << "FXTools Copyright FoxaXu 2022" << endl << endl;
 		cout << " " << endl;
 		goto RETURN_BOX;
 	}
@@ -366,6 +368,53 @@ RETURN_BOX:
 			goto RETURN_BOX;
 		}
 		return 0;
+	}
+	if (Dialog == "download") {
+		string DialogURL = "Null.noanytype";
+		cout << "URL>";
+		getline(cin, DialogURL);
+		if (DialogURL == "exit") {
+			cout << endl;
+			goto RETURN_BOX;
+		}
+		if (DialogURL == "") {
+			cout << endl;
+			goto RETURN_BOX;
+		}
+		string DialogSavePath = "%USERPROFILE%\\DESKTOP\\Download.exe";
+		RETURN_TYPE_SAVEPATH:
+		cout << "Save Path>";
+		getline(cin,DialogSavePath);
+
+		if (DialogSavePath == "") {
+			cout << "请输入一个有效的保存目录或者exit返回" << endl;
+			cout << endl;
+			goto RETURN_TYPE_SAVEPATH;
+		}
+		if (DialogSavePath == "exit") {
+			cout << endl;
+			goto RETURN_BOX;
+		}
+
+		ofstream OutDownloadTaskURL;
+		OutDownloadTaskURL.open("Root\\Temp\\ODT.data");
+		OutDownloadTaskURL << DialogURL;
+		OutDownloadTaskURL.close();
+
+		ofstream OutDownloadTaskSP;
+		OutDownloadTaskSP.open("Root\\Temp\\ODTSP.data");
+		OutDownloadTaskSP << DialogSavePath;
+		OutDownloadTaskSP.close();
+		cout << "下载开始" << endl;
+		cout << "如果下载期间任务管理器长期显示 0 Mpbs 速度请手动使用任务管理器结束 FXDS.exe 以终止下载" << endl;
+
+		system("set/p setURL=<Root\\Temp\\ODT.data&set/p setSP=<Root\\Temp\\ODTSP.data&Root\\Plugin\\FXDS.exe");
+
+		system("del Root\\Temp\\ODT.data");
+		system("del Root\\Temp\\ODTSP.data");
+		cout << "任务执行完成" << endl;
+		cout << endl;
+		goto RETURN_BOX;
 	}
 	if (Dialog == "setup-package") {
 		string SFServc = "Root\\Extend\\SelectFileService.vbs";
