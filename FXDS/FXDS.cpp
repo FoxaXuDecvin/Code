@@ -94,11 +94,17 @@ int main()
 	bool CDSP = isFileExists_ifstream(dsp);
 	if (CDSP) {
 		cout << "下载成功，目录" << dsp << endl;
+
+		system("echo=TRUE >>%temp%\\DownloadReport.dat");
+
 		return 0;
 	}
 	else
 	{
 		cout << "下载失败, URL错误: " << durl << endl;
+
+		system("echo=FALSE >>%temp%\\DownloadReport.dat");
+
 		return 0;
 	}
 }
