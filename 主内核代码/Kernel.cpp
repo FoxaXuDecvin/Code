@@ -65,9 +65,9 @@ string ReadLine(string filename, int line)
 int main() {
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char CoreVersion[] = "Alpha-Core1.12.1";
+	char CoreVersion[] = "Alpha-Core1.12.2";
 	char CodeName[] = "PaperCore";
-	char CoreCompileDate[] = "20230102_2";
+	char CoreCompileDate[] = "20230103";
 
 	//MainService
 
@@ -304,6 +304,51 @@ int main() {
 			DKRSetPack.open("Root\\Temp\\kernel-report-setpk.data");
 			DKRSetPack << "false" << endl;
 			DKRSetPack.close();
+			return 0;
+		}
+	}
+
+	// 安装数字签名
+	if (UserDialogue == "setup-sign-fxtool") {
+
+		string WRITEADMINCheck = "%HOMEDRIVE%\\TEST";
+		bool WATC = isFileExists_ifstream(WRITEADMINCheck);
+		if (WATC) {
+			system("del %HOMEDRIVE%\\TEST");
+		}
+		system("echo=%HOMEDRIVE%\\TEST>>Root\\Temp\\TryCode.data");
+
+		string CKC = "nul";
+		ifstream CheckCode;
+		CheckCode.open("Root\\Temp\\TryCode.data");
+		CheckCode >> CKC;
+		CheckCode.close();
+
+		system("echo=A >>%HOMEDRIVE%\\TEST");
+		system("del Root\\Temp\\TryCode.data");
+
+		string WRITEADMINTest = CKC;
+		bool WAT = isFileExists_ifstream(WRITEADMINTest);
+
+		if (WAT){
+			system("del %HOMEDRIVE%\\TEST");
+		cout << "正在下载证书" << endl;
+		system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/FoxaXu.cer&set setSP=%temp%\\PubhicCert.cer&Root\\Plugin\\FXDS.exe");
+		cout << "正在下载安装工具" << endl;
+		system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/certmgr.exe&set setSP=Root\\Temp\\CertMgr.exe&Root\\Plugin\\FXDS.exe");
+		system("cls");
+		cout << "正在安装证书" << endl << endl;
+		Sleep(2000);
+		system("Root\\Temp\\CertMgr.exe -add %temp%\\PubhicCert.cer -s -r localMachine AuthRoot");
+		MessageBox(0, L"执行完成，请打开文件属性，点击数字签名一栏查看数字签名是否有效, 安装目录：当前用户\\第三方根证书颁发机构\\证书\\FoxaXu",L"Kernel Service",MB_OK);
+		cout << "正在清理文件" << endl;
+		system("del %temp%\\PubhicCert.cer");
+		system("del Root\\Temp\\CertMgr.exe");
+		return 0;
+		}
+		else
+		{
+			cout << "请提升权限以完成操作" << endl;
 			return 0;
 		}
 	}
