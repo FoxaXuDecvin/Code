@@ -18,8 +18,8 @@ int main(int argc, char** argv) {
 	RELOAD:
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char version[] = "Build_1011";
-	char pubdate[] = "20230102";
+	char version[] = "Build_1012";
+	char pubdate[] = "20230103";
 
 	string filename = "Root\\SettingInfo.txt";
 	bool ret = isFileExists_ifstream(filename);
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 		cout << "正在下载FXDS" << endl;
 		HRESULT PrepFXDS = URLDownloadToFileW(
 			nullptr,
-			L"https://foxaxudecvin.github.io/warehouse/FXDS.exe",
+			L"https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/FXDS.exe",
 			L"Root\\Plugin\\FXDS.exe",
 			0,
 			nullptr
@@ -130,15 +130,16 @@ SkipLoadConfig:
 		ofstream eula;
 		eula.open("Root\\EULA.txt");
 		eula << "   软件使用条款" << endl;
-		eula << " 更新日期   2022 年 12 月 26 日。修改: FoxaXu" << endl;
+		eula << " 更新日期   2023 年 1 月 3 日。修改: FoxaXu" << endl;
 		eula << "更多信息请访问 https://foxaxudecvin.github.io. 邮箱 foxaxudecvin@outlook.com" << endl;
 		eula << " " << endl;
 		eula << "感谢你打开这款软件，测试阶段，部分信息可以在 Root\\KernelData.txt找到" << endl;
 		eula << "如果你在使用中发现有漏洞，可以向我们报告，联系方式可以打开上面的网站。也可以通过邮箱" << endl;
 		eula << "此软件处于开发测试阶段，此条款可能会随时更新,未经许可不允许修改发布" << endl;
 		eula << " " << endl;
-		eula << "FoxaXu 2022.12.26      Github https://github.com/foxaxudecvin" << endl;
+		eula << "FoxaXu 2023.1.3      Github https://github.com/foxaxudecvin" << endl;
 		eula << "关于开源信息请访问: https://github.com/foxaxudecvin/Code" << endl;
+		eula << "下载加速链接： https://gitcode.net/PerhapsCanFly/quicklink" << endl;
 		eula << "阅读完成请点击确定同意" << endl;
 		eula << " " << endl;
 		eula << "Version: ";
@@ -177,9 +178,9 @@ SkipLoadConfig:
 			Sleep(1500);
 			cout << " " << endl;
 			cout << "正在启动下载服务" << endl;
-			system("set setURL=https://foxaxudecvin.github.io/warehouse/7z.exe&set setsp=Root\\Plugin\\7z.exe&Root\\Plugin\\FXDS.exe");
+			system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/7zip/7z.exe&set setsp=Root\\Plugin\\7z.exe&Root\\Plugin\\FXDS.exe");
 			system("set setURL=https://foxxaaservice.github.io/Kernel.exe&set setsp=Root\\Plugin\\Kernel.exe&Root\\Plugin\\FXDS.exe");
-			system("set setURL=https://foxaxudecvin.github.io/warehouse/7z.dll&set setsp=Root\\Plugin\\7z.dll&Root\\Plugin\\FXDS.exe");
+			system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/7zip/7z.dll&set setsp=Root\\Plugin\\7z.dll&Root\\Plugin\\FXDS.exe");
 			system("cls");
 			cout << "正在验证你的下载是否完整" << endl;
 
@@ -225,6 +226,8 @@ SkipLoadConfig:
 			MessageBox(0, L"你已取消操作", L"MainService", MB_OK);
 			return 0;
 		}
+
+		MessageBox(0, L"由于程序特殊性，执行部分操作可能会被系统安全软件所拦截，如果你遇到了这种错误，我们推荐你安装数字签名以解决问题，在控制台输入setup-sign即可安装",L"MainService",MB_OK);
 
 	SkipDisplayE:
 
@@ -324,6 +327,7 @@ RETURN_BOX:
 		cout << "admin      -Run To Administrator" << endl;
 		cout << "download    -Download File" << endl;
 		cout << "setup-package  -Install Package" << endl;
+		cout << "setup-sign         -setup our Application Digital Signature" << endl;
 		cout << "remove     -Uninstall Package" << endl;
 		cout << "list-tool    -List All Tools" << endl;
 		cout << "repair       -Repair Tools" << endl;
@@ -507,6 +511,20 @@ RETURN_BOX:
 			goto RETURN_BOX;
 		}
 		cout << " " << endl;
+	}
+	if (Dialog == "setup-sign") {
+		int b;
+		b = MessageBox(0, L"确定要安装数字证书吗", L"MainService", MB_YESNO);
+		if (b == 6) {
+			system("set LCode=setup-sign-fxtool&Root\\Plugin\\Kernel.exe");
+			cout << endl;
+			goto RETURN_BOX;
+		}
+		else
+		{
+			cout << "Cancel" << endl << endl;
+			goto RETURN_BOX;
+		}
 	}
 	if (Dialog == "remove") {
 
