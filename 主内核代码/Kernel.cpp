@@ -443,9 +443,7 @@ int main() {
 	OutCertCodeData << SHA256Code << endl;
 	OutCertCodeData.close();
 
-	system("set/p setURL=<Root\\Temp\\PackInstallerTemp\\Security\\CertURL.cfg &set setSP=Root\\Temp\\GetURLCertCode.data &start /b Root\\Plugin\\FXDS.exe");
-
-	Sleep(6000);
+	system("set/p setURL=<Root\\Temp\\PackInstallerTemp\\Security\\CertURL.cfg &set setSP=Root\\Temp\\GetURLCertCode.data &Root\\Plugin\\FXDS.exe");
 
 	int a = 0;
 	
@@ -456,7 +454,7 @@ int main() {
 	}
 	else
 	{	
-		a = MessageBox(0, L"连接服务器超时，无法完成签名验证，是否重试", L"Kernel Process MessageBox", MB_YESNO);
+		a = MessageBox(0, L"获取签名信息失败，无法验证该包签名是否有效，是否重试", L"Kernel Process MessageBox", MB_YESNO);
 		if (a == 6)
 		{
 			goto Try_again_VCert;
@@ -472,9 +470,7 @@ int main() {
 
 	Try_again_VCert:
 
-		system("set/p setURL=<Root\\Temp\\PackInstallerTemp\\Security\\CertURL.cfg &set setSP=Root\\Temp\\GetURLCertCode.data &start /b Root\\Plugin\\FXDS.exe");
-
-		Sleep(12000);
+		system("set/p setURL=<Root\\Temp\\PackInstallerTemp\\Security\\CertURL.cfg &set setSP=Root\\Temp\\GetURLCertCode.data &Root\\Plugin\\FXDS.exe");
 
 		int a = 0;
 
