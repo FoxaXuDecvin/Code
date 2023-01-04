@@ -18,19 +18,19 @@ int main(int argc, char** argv) {
 	RELOAD:
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char version[] = "Build_1012";
-	char pubdate[] = "20230103";
+	char version[] = "Build_1013";
+	char pubdate[] = "20230104";
 
 	string filename = "Root\\SettingInfo.txt";
 	bool ret = isFileExists_ifstream(filename);
 	if (ret)
 	{
+		system("attrib Root -s -a -h");
 		system("echo=Report_Config_is_Exist>>Root\\LoadReport.log");
 		goto SkipLoadConfig;
 	}
 	else
 	{
-
 		system("md Root");
 		system("md Root\\Config");
 		system("md Root\\Plugin");
@@ -62,6 +62,11 @@ int main(int argc, char** argv) {
 		settinginfo << "如果你在使用中发现了问题，可以尝试删除这个目录以重置所有选项" << endl;
 		settinginfo << "此文件仅用于判断配置文件是否正常" << endl;
 		settinginfo.close();
+
+		ofstream showrootset;
+		showrootset.open("Root\\Config\\ShowRoot.cfg");
+		showrootset << "off" << endl;
+		showrootset.close();
 
 		//Download File
 		cout << "正在下载FXDS" << endl;
@@ -104,6 +109,12 @@ SkipLoadConfig:
 	taskcheckSde.open("Root\\Config\\SkipDisplayEula.cfg");
 	taskcheckSde >> settingSde;
 	taskcheckSde.close();
+
+	string showrootdata = "Null";
+	ifstream tasksrd;
+	tasksrd.open("Root\\Config\\ShowRoot.cfg");
+	tasksrd >> showrootdata;
+	tasksrd.close();
 
 	system("echo=%cd%\\Root>>Root\\Temp\\GetPathInfo.data");
 	string WorkFolder = "Null";
@@ -153,6 +164,8 @@ SkipLoadConfig:
 		ProcessPathOut << ProcessName << endl;
 		ProcessPathOut.close();
 
+
+		//初始化与下载
 		string KernelFile = "Root\\Plugin\\Kernel.exe";
 		bool returndata = isFileExists_ifstream(KernelFile);
 		if (returndata) {
@@ -233,8 +246,6 @@ SkipLoadConfig:
 
 		system("set LCode=report &Root\\Plugin\\Kernel.exe");
 
-		Sleep(50);
-
 		string KRVersion = "Root\\Temp\\KernelReport-Version.data";
 		bool KRVer = isFileExists_ifstream(KRVersion);
 		if (KRVer) {
@@ -274,6 +285,14 @@ SkipLoadConfig:
 		system("del Root\\Temp\\KernelReport-Version.data");
 		system("del Root\\Temp\\KernelReport-BuildDate.data");
 		system("del Root\\Temp\\KernelReport-CodeName.data");
+
+		if (showrootdata == "open") {
+			system("attrib Root -s -a -h");
+		}
+		else
+		{
+			system("attrib Root +s +a +h");
+		}
 
 	system("cls");
 
@@ -328,6 +347,7 @@ RETURN_BOX:
 		cout << "download    -Download File" << endl;
 		cout << "setup-package  -Install Package" << endl;
 		cout << "setup-sign         -setup our Application Digital Signature" << endl;
+		cout << "setroot-show/hide           -Set Root Folder Show or Hide" << endl;
 		cout << "remove     -Uninstall Package" << endl;
 		cout << "list-tool    -List All Tools" << endl;
 		cout << "repair       -Repair Tools" << endl;
@@ -349,7 +369,7 @@ RETURN_BOX:
 		goto RELOAD;
 	}
 	if (Dialog == "openwork") {
-		system("explorer %cd%");
+		system("explorer %cd%\\Root");
 		cout << " " << endl;
 		goto RETURN_BOX;
 	}
@@ -525,6 +545,24 @@ RETURN_BOX:
 			cout << "Cancel" << endl << endl;
 			goto RETURN_BOX;
 		}
+	}
+	if (Dialog == "setroot-show") {
+		system("attrib Root -s -a -h");
+		ofstream showrootsetopen;
+		showrootsetopen.open("Root\\Config\\ShowRoot.cfg");
+		showrootsetopen << "open" << endl;
+		showrootsetopen.close();
+		cout << "Set Root Show Mode Successfully" << endl << endl;
+		goto RETURN_BOX;
+	}
+	if (Dialog == "setroot-hide") {
+		ofstream showrootsetoff;
+		showrootsetoff.open("Root\\Config\\ShowRoot.cfg");
+		showrootsetoff << "off" << endl;
+		showrootsetoff.close();
+		system("attrib Root +s +a +h");
+		cout << "Set Root Show Mode Successfully" << endl << endl;
+		goto RETURN_BOX;
 	}
 	if (Dialog == "remove") {
 
