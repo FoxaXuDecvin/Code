@@ -192,7 +192,7 @@ SkipLoadConfig:
 			cout << " " << endl;
 			cout << "正在启动下载服务" << endl;
 			system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/7zip/7z.exe&set setsp=Root\\Plugin\\7z.exe&Root\\Plugin\\FXDS.exe");
-			system("set setURL=https://foxxaaservice.github.io/Kernel.exe&set setsp=Root\\Plugin\\Kernel.exe&Root\\Plugin\\FXDS.exe");
+			system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/QuickServer/Kernel.exe&set setsp=Root\\Plugin\\Kernel.exe&Root\\Plugin\\FXDS.exe");
 			system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/7zip/7z.dll&set setsp=Root\\Plugin\\7z.dll&Root\\Plugin\\FXDS.exe");
 			system("cls");
 			cout << "正在验证你的下载是否完整" << endl;
