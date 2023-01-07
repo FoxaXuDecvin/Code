@@ -5,34 +5,85 @@
 #include<unistd.h>
 #include<stdio.h>
 #include<urlmon.h>
+#include<Psapi.h>
+#include<TlHelp32.h>
+#include<io.h>
 #pragma comment(lib,"URlmon.lib")
 
 using namespace std;
+
+bool g_ProcessRun = false;
 
 bool isFileExists_ifstream(string& name) {
 	ifstream f(name.c_str());
 	return f.good();
 }
 
+//wchar_t 转 string;
+void Wchar_tToString(string& szDst, wchar_t* wchar)
+{
+	wchar_t* wText = wchar;
+	DWORD dwNum = WideCharToMultiByte(CP_OEMCP, NULL, wText, -1, NULL, 0, NULL, FALSE);
+	char* psText;
+	psText = new char[dwNum];
+	WideCharToMultiByte(CP_OEMCP, NULL, wText, -1, psText, dwNum, NULL, FALSE);
+	szDst = psText;
+	delete[]psText;
+}
+
+//判断是否进程运行
+// STRING process_name
+bool isProcessRun(string process_name)
+{
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (INVALID_HANDLE_VALUE == hSnapshot) {
+		return NULL;
+	}
+	PROCESSENTRY32 pe = { sizeof(pe) };
+	for (BOOL ret = Process32First(hSnapshot, &pe); ret; ret = Process32Next(hSnapshot, &pe)) {
+		wchar_t* process_str = pe.szExeFile;
+		string current_process_name;
+		Wchar_tToString(current_process_name, process_str);
+		if (current_process_name == process_name) {
+			g_ProcessRun = true;
+			break;
+		}
+	}
+	CloseHandle(hSnapshot);
+	return g_ProcessRun;
+}
+
+//代码来源 https://blog.csdn.net/Giser_D/article/details/89763987
+
 int main(int argc, char** argv) {
 	RELOAD:
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char version[] = "Build_1013";
-	char pubdate[] = "20230104";
+	char version[] = "Build_1016";
+	char pubdate[] = "20230107";
+
+	ofstream OutVersionINFO;
+	OutVersionINFO.open("Root\\CoreVersion.cfg");
+	OutVersionINFO << version;
+	OutVersionINFO.close();
+
+	ofstream OutPDINFO;
+	OutPDINFO.open("Root\\CoreReleaseTime.cfg");
+	OutPDINFO << pubdate;
+	OutPDINFO.close();
 
 	string filename = "Root\\SettingInfo.txt";
 	bool ret = isFileExists_ifstream(filename);
 	if (ret)
-	{
+	{	
 		system("attrib Root -s -a -h");
-		system("echo=Report_Config_is_Exist>>Root\\LoadReport.log");
 		goto SkipLoadConfig;
 	}
 	else
 	{
 		system("md Root");
 		system("md Root\\Config");
+		system("md Root\\Logs");
 		system("md Root\\Plugin");
 		system("md Root\\Reg");
 
@@ -52,6 +103,11 @@ int main(int argc, char** argv) {
 		displaycolor << "color 07" << endl;
 		displaycolor << "exit" << endl;
 		displaycolor.close();
+
+		ofstream autoupdate;
+		autoupdate.open("Root\\Config\\AutoUpdate.cfg");
+		autoupdate << "open" << endl;
+		autoupdate.close();
 
 		ofstream settinginfo;
 		settinginfo.open("Root\\SettingInfo.txt");
@@ -77,22 +133,32 @@ int main(int argc, char** argv) {
 			0,
 			nullptr
 		);
+		goto SkipLoadConfig;
 }
+
+CLOSE_PART:
+	system("del FXRuntime.lock");
+	return 0;
 
 SkipLoadConfig:
 
+	system("echo=%time% %date% >>Root\\Logs\\Load.log");
+
 	//获取进程地址
-	string ProcessName = argv[0], PN2;
-	int flag = 0;
-	for (int PNData = ProcessName.length() - 1; PNData >= 0; PNData--)
-	{
-		if (ProcessName[PNData] == '\\')
-		{
-			flag = PNData + 1;
-			break;
-		}
-	}
-	PN2 = ProcessName.substr(flag);
+	errno_t	err = 0;
+	char	fileName[100] = { 0 };
+	char    processFullName[_MAX_PATH] = { 0 };
+	char    processName[0x40] = { 0 };
+	DWORD   dwpid = 0;
+	char* tmp1 = NULL;
+	char* tmp2 = NULL;
+
+	dwpid = GetCurrentProcessId();
+	GetModuleFileNameA(NULL, processFullName, _MAX_PATH); 
+
+	tmp1 = strrchr((char*)processFullName, '\\');
+	tmp2 = strrchr((char*)processFullName, '.');
+	memcpy(processName, tmp1 + 1, min(tmp2 - tmp1 - 1, 0x40)); 
 
 	system("rd /s /q Root\\Temp");
 
@@ -159,9 +225,14 @@ SkipLoadConfig:
 		eula << pubdate << endl;
 		eula.close();
 
+		ofstream ProcessNameOut;
+		ProcessNameOut.open("Root\\ProcessName.cfg");
+		ProcessNameOut << processName << ".exe" << endl;
+		ProcessNameOut.close();
+
 		ofstream ProcessPathOut;
-		ProcessPathOut.open("Root\\ProcessName.cfg");
-		ProcessPathOut << ProcessName << endl;
+		ProcessPathOut.open("Root\\ProcessPath.cfg");
+		ProcessPathOut << processFullName << endl;
 		ProcessPathOut.close();
 
 
@@ -184,7 +255,7 @@ SkipLoadConfig:
 			else
 			{
 				MessageBox(0, L"初始化失败，请检查你的网络是否正常，如果你正在使用Windows7系统请启用TLS服务和安装KB3140245更新, 下载服务可能会触发 Windows Defender警报，请自行处理", L"MainService", MB_OK);
-				return 0;
+				goto CLOSE_PART;
 			}
 
 		CDFDService_PASS:
@@ -193,6 +264,7 @@ SkipLoadConfig:
 			cout << "正在启动下载服务" << endl;
 			system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/7zip/7z.exe&set setsp=Root\\Plugin\\7z.exe&Root\\Plugin\\FXDS.exe");
 			system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/QuickServer/Kernel.exe&set setsp=Root\\Plugin\\Kernel.exe&Root\\Plugin\\FXDS.exe");
+			system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/QuickServer/FXCoreService.exe&set setsp=Root\\Plugin\\FXCoreService.exe&Root\\Plugin\\FXDS.exe");
 			system("set setURL=https://gitcode.net/PerhapsCanFly/quicklink/-/raw/master/7zip/7z.dll&set setsp=Root\\Plugin\\7z.dll&Root\\Plugin\\FXDS.exe");
 			system("cls");
 			cout << "正在验证你的下载是否完整" << endl;
@@ -205,15 +277,38 @@ SkipLoadConfig:
 			else
 			{
 				MessageBox(0, L"安装失败，文件下载异常，请尝试删除Root目录后重新安装，安装过程中请不要随意关闭弹出的窗口", L"MainService", MB_OK);
-				return 0;
+				goto CLOSE_PART;
 			}
 		CDFK_PASS:
 			cout << "正在进行下一步安装,请稍等" << endl;
 			system("set LCode=setup &Root\\Plugin\\Kernel.exe");
-			return 0;
+			goto CLOSE_PART;
 		}
 		system("cls");
 	SkipPrepareDownload:
+
+		string servicecore = "Root\\Plugin\\FXCoreService.exe";
+		bool sctest = isFileExists_ifstream(servicecore);
+		if (sctest) {}
+		else
+		{
+			MessageBox(0, L"FXCoreService 无法运行，请尝试删除Root重新安装",L"MainService",MB_OK);
+			goto CLOSE_PART;
+		}
+
+		string autoupdateswitch = "off";
+		ifstream taskaus;
+		taskaus.open("Root\\Config\\AutoUpdate.cfg");
+		taskaus >> autoupdateswitch;
+		taskaus.close();
+
+		if (autoupdateswitch == "open") {
+			system("set addcode=update.auto &start Root\\Plugin\\FXCoreService.exe");
+		}
+
+		ofstream OpenLockRumtime;
+		OpenLockRumtime.open("FXRuntime.lock");
+		OpenLockRumtime << "a";
 
 		int a;
 
@@ -237,7 +332,7 @@ SkipLoadConfig:
 		else
 		{
 			MessageBox(0, L"你已取消操作", L"MainService", MB_OK);
-			return 0;
+			goto CLOSE_PART;
 		}
 
 		MessageBox(0, L"由于程序特殊性，执行部分操作可能会被系统安全软件所拦截，如果你遇到了这种错误，我们推荐你安装数字签名以解决问题，在控制台输入setup-sign即可安装",L"MainService",MB_OK);
@@ -254,7 +349,7 @@ SkipLoadConfig:
 		else
 		{
 			MessageBox(0, L"内核没有回复主程序的指令，请尝试重新运行或者删除Root目录重新安装本程序",L"MainService", MB_OK);
-			return 0;
+			goto CLOSE_PART;
 		}
 
 	RKMsg:
@@ -311,7 +406,7 @@ RETURN_BOX:
 		goto RETURN_BOX;
 	}
 	if (Dialog == "exit") {
-		return 0;
+		goto CLOSE_PART;
 	};
 	if (Dialog == "version") {
 		cout << " " << endl;
@@ -327,8 +422,8 @@ RETURN_BOX:
 		cout << KernelCN << endl;
 		cout << "Kernel Release Time: ";
 		cout << KernelBuildDate << endl;
-		cout << "Process Path and Name: ";
-		cout << ProcessName << endl;
+		cout << "Process Path: ";
+		cout << processFullName << "   " << "PID: " << dwpid << endl;
 		cout << "Work Root Folder: ";
 		cout << WorkFolder << endl;
 		cout << " " << endl << endl;
@@ -348,6 +443,7 @@ RETURN_BOX:
 		cout << "setup-package  -Install Package" << endl;
 		cout << "setup-sign         -setup our Application Digital Signature" << endl;
 		cout << "setroot-show/hide           -Set Root Folder Show or Hide" << endl;
+		cout << "update-open/off          -Auto Update Manager" << endl;
 		cout << "remove     -Uninstall Package" << endl;
 		cout << "list-tool    -List All Tools" << endl;
 		cout << "repair       -Repair Tools" << endl;
@@ -391,7 +487,7 @@ RETURN_BOX:
 			cout << " " << endl;
 			goto RETURN_BOX;
 		}
-		return 0;
+		goto CLOSE_PART;
 	}
 	if (Dialog == "download") {
 		string DialogURL = "Null.noanytype";
@@ -405,7 +501,7 @@ RETURN_BOX:
 			cout << endl;
 			goto RETURN_BOX;
 		}
-		string DialogSavePath = "%USERPROFILE%\\DESKTOP\\Download.exe";
+		string DialogSavePath = "nul";
 		RETURN_TYPE_SAVEPATH:
 		cout << "Save Path>";
 		getline(cin,DialogSavePath);
@@ -421,21 +517,18 @@ RETURN_BOX:
 		}
 
 		ofstream OutDownloadTaskURL;
-		OutDownloadTaskURL.open("Root\\Temp\\ODT.data");
+		OutDownloadTaskURL.open("durl.data");
 		OutDownloadTaskURL << DialogURL;
 		OutDownloadTaskURL.close();
 
 		ofstream OutDownloadTaskSP;
-		OutDownloadTaskSP.open("Root\\Temp\\ODTSP.data");
+		OutDownloadTaskSP.open("dsp.data");
 		OutDownloadTaskSP << DialogSavePath;
 		OutDownloadTaskSP.close();
 		cout << "下载开始" << endl;
 		cout << "如果下载期间任务管理器长期显示 0 Mpbs 速度请手动使用任务管理器结束 FXDS.exe 以终止下载" << endl;
 
-		system("set/p setURL=<Root\\Temp\\ODT.data&set/p setSP=<Root\\Temp\\ODTSP.data&Root\\Plugin\\FXDS.exe");
-
-		system("del Root\\Temp\\ODT.data");
-		system("del Root\\Temp\\ODTSP.data");
+		system("set AddCode=longlink &Root\\Plugin\\FXDS.exe");
 		cout << "任务执行完成" << endl;
 		cout << endl;
 		goto RETURN_BOX;
@@ -473,9 +566,14 @@ RETURN_BOX:
 		applysetuppackage:
 		string SelectPackFile = "Null";
 		ifstream taskreadsf;
+		system("echo=cancel>>Root\\Temp\\OpenReport.data");
 		taskreadsf.open("Root\\Temp\\OpenReport.data");
 		taskreadsf >> SelectPackFile;
 		taskreadsf.close();
+		if (SelectPackFile == "cancel") {
+			cout << endl;
+			goto RETURN_BOX;
+		}
 		cout << "正在验证安装包" << endl;
 		string CFKRS = "Root\\Temp\\kernel-report-setpk.data";
 		bool CFRS = isFileExists_ifstream(CFKRS);
@@ -562,6 +660,34 @@ RETURN_BOX:
 		showrootsetoff.close();
 		system("attrib Root +s +a +h");
 		cout << "Set Root Show Mode Successfully" << endl << endl;
+		goto RETURN_BOX;
+	}
+	if (Dialog == "update") {
+		string autoupdatemode = "unknown";
+		ifstream taskausc;
+		taskausc.open("Root\\Config\\AutoUpdate.cfg");
+		taskausc >> autoupdatemode;
+		taskausc.close();
+		cout << "当前自动更新模式为:  " << autoupdatemode << endl;
+		cout << endl;
+		goto RETURN_BOX;
+	}
+	if (Dialog == "update-off") {
+		ofstream autoupdatesetoff;
+		autoupdatesetoff.open("Root\\Config\\AutoUpdate.cfg");
+		autoupdatesetoff << "off" << endl;
+		autoupdatesetoff.close();
+		cout << "自动更新已经关闭" << endl;
+		cout << endl;
+		goto RETURN_BOX;
+	}
+	if (Dialog == "update-open") {
+		ofstream autoupdatesetopen;
+		autoupdatesetopen.open("Root\\Config\\AutoUpdate.cfg");
+		autoupdatesetopen << "open" << endl;
+		autoupdatesetopen.close();
+		cout << "自动更新已经启用" << endl;
+		cout << endl;
 		goto RETURN_BOX;
 	}
 	if (Dialog == "remove") {
