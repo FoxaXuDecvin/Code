@@ -362,4 +362,5 @@ int main() {
 		$XAddCode = "Disabled";
 		EXCOMMAND = stringToLPCWSTR($AddCode);
 		goto ReCommand;
+		// Copyright FoxaXu 2023 FXCoreService
 }
