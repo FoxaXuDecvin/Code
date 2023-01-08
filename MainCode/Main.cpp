@@ -59,8 +59,8 @@ int main(int argc, char** argv) {
 	RELOAD:
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
-	char version[] = "Build_1016";
-	char pubdate[] = "20230107";
+	char version[] = "Build_1021";
+	char pubdate[] = "20230108";
 
 	ofstream OutVersionINFO;
 	OutVersionINFO.open("Root\\CoreVersion.cfg");
@@ -137,12 +137,11 @@ int main(int argc, char** argv) {
 }
 
 CLOSE_PART:
+	system("echo=ExitNormal>>FXExitReport.data");
 	system("del FXRuntime.lock");
 	return 0;
 
 SkipLoadConfig:
-
-	system("echo=%time% %date% >>Root\\Logs\\Load.log");
 
 	//获取进程地址
 	errno_t	err = 0;
@@ -202,7 +201,7 @@ SkipLoadConfig:
 	kerneldata << "Version Release Date: ";
 	kerneldata << pubdate << endl;
 	kerneldata << "More Info Please Visit https://foxaxudecvin.github.io" << endl;
-	kerneldata << "Copyright FoxaXu 2022" << endl;
+	kerneldata << "Copyright FoxaXu 2023" << endl;
 	kerneldata.close();
 		ofstream eula;
 		eula.open("Root\\EULA.txt");
@@ -302,9 +301,13 @@ SkipLoadConfig:
 		taskaus >> autoupdateswitch;
 		taskaus.close();
 
+		string CSUCK = "adcode.data";
+
 		if (autoupdateswitch == "open") {
-			system("set addcode=update.auto &start Root\\Plugin\\FXCoreService.exe");
+			system("set AddCode=update.auto &set switchGUI=show &start /b Root\\Plugin\\FXCoreService.exe >nul 2>nul");
 		}
+		system("set AddCode=lockroot&set switchGUI=show&start /b Root\\Plugin\\FXCoreService.exe >nul 2>nul");
+		system("set AddCode=crash_check&set switchGUI=hide&start Root\\Plugin\\FXCoreService.exe >nul 2>nul");
 
 		ofstream OpenLockRumtime;
 		OpenLockRumtime.open("FXRuntime.lock");
@@ -397,15 +400,18 @@ SkipLoadConfig:
 	cout << "Kernel Version: ";
 	cout << version << endl;
 RETURN_BOX:
+	remove("$FXProcessMark");
 	system("title FoxaXu Dialogue");
 	string Dialog = "Null.noanytype";
-	cout << "Command\>";
+	cout << "Command\\";
 	getline(cin, Dialog);
+	system("echo=Mark For Command>>$FXProcessMark");
 	if (Dialog == "") {
 		cout << " " << endl;
 		goto RETURN_BOX;
 	}
 	if (Dialog == "exit") {
+		OpenLockRumtime.close();
 		goto CLOSE_PART;
 	};
 	if (Dialog == "version") {
@@ -437,6 +443,7 @@ RETURN_BOX:
 		cout << "clear       -clear screen" << endl;
 		cout << "time       -debug for show time" << endl;
 		cout << "reload    -Reload All Settings" << endl;
+		cout << "crash       -Debug For Crash Test" << endl;
 		cout << "openwork   -Open Root Folder" << endl;
 		cout << "admin      -Run To Administrator" << endl;
 		cout << "download    -Download File" << endl;
@@ -462,7 +469,17 @@ RETURN_BOX:
 		goto RETURN_BOX;
 	}
 	if (Dialog == "reload") {
+		OpenLockRumtime.close();
 		goto RELOAD;
+	}
+	if (Dialog == "crash") {
+		string realcrash;
+		cout << "输入crash再次确认";
+		getline(cin, realcrash);
+		if (realcrash == "crash") {
+			return 0;
+		}
+		goto RETURN_BOX;
 	}
 	if (Dialog == "openwork") {
 		system("explorer %cd%\\Root");
