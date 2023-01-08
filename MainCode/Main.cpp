@@ -311,9 +311,12 @@ SkipLoadConfig:
 		}
 		if (autoupdateswitch == "open") {
 			system("set AddCode=update.auto &set switchGUI=show &start /b Root\\Plugin\\FXCoreService.exe >nul 2>nul");
+			Sleep(1500);
 		}
 		system("set AddCode=lockroot&set switchGUI=show&start /b Root\\Plugin\\FXCoreService.exe >nul 2>nul");
+		Sleep(1500);
 		system("set AddCode=crash_check&set switchGUI=hide&start Root\\Plugin\\FXCoreService.exe >nul 2>nul");
+		Sleep(1500);
 
 		SkipLoadService:
 
