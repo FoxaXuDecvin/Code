@@ -56,7 +56,10 @@ bool isProcessRun(string process_name)
 //´úÂëÀ´Ô´ https://blog.csdn.net/Giser_D/article/details/89763987
 
 int main(int argc, char** argv) {
-	RELOAD:
+RELOAD:
+	remove("$FXProcessMark");
+	remove("FXRuntime.lock");
+	remove("FXExitReport.data");
 	ShowWindow(GetConsoleWindow(), SW_SHOW);
 
 	char version[] = "Build_1021";
@@ -303,11 +306,16 @@ SkipLoadConfig:
 
 		string CSUCK = "adcode.data";
 
+		if (settingSde == "offskip") {
+			goto SkipLoadService;
+		}
 		if (autoupdateswitch == "open") {
 			system("set AddCode=update.auto &set switchGUI=show &start /b Root\\Plugin\\FXCoreService.exe >nul 2>nul");
 		}
 		system("set AddCode=lockroot&set switchGUI=show&start /b Root\\Plugin\\FXCoreService.exe >nul 2>nul");
 		system("set AddCode=crash_check&set switchGUI=hide&start Root\\Plugin\\FXCoreService.exe >nul 2>nul");
+
+		SkipLoadService:
 
 		ofstream OpenLockRumtime;
 		OpenLockRumtime.open("FXRuntime.lock");
@@ -412,6 +420,7 @@ RETURN_BOX:
 	}
 	if (Dialog == "exit") {
 		OpenLockRumtime.close();
+		remove("$FXProcessMark");
 		goto CLOSE_PART;
 	};
 	if (Dialog == "version") {
