@@ -1,3 +1,6 @@
+// Copyright FoxaXu 2023 (C)
+// Download File Tool
+
 #include<Windows.h>
 #include<stdio.h>
 #include<direct.h>
@@ -26,70 +29,29 @@ bool isFileExists_ifstream(string& name) {
 }
 
 
-int main()
+int main(int argc,char *argv[])
 {
-	system("echo=%addcode% >>TestDialog.data");
-	string AddCode = "null";
-	ifstream OpenReadAddCode;
-	OpenReadAddCode.open("TestDialog.data");
-	OpenReadAddCode >> AddCode;
-	OpenReadAddCode.close();
-	system("del TestDialog.data");
-
-	string dsp = "nul";
-	string durl = "nul";
-
-	if (AddCode == "%addcode%") {
-		//兼容模式
-		system("echo=%setURL% >>surl.data");
-		system("echo=%setSP% >>ssp.data");
-
-		ifstream OSURL;
-		OSURL.open("surl.data");
-		OSURL >> durl;
-		OSURL.close();
-
-		ifstream OSSP;
-		OSSP.open("ssp.data");
-		OSSP >> dsp;
-		OSSP.close();
-
-		system("del surl.data");
-		system("del ssp.data");
-		
-		if (durl == "%setURL%") {
-			goto NullTask;
-		}
-		if (dsp == "%setSP%") {
-			goto NullTask;
-		}
-		goto StartDownload;
-
-	NullTask:
-		MessageBox(0, L"参数无效，请检查 %setURL%与 %serSP% 两个值是否正确", L"Download Task", MB_OK);
+	if (argc == 1) {
+		MessageBox(0, L"参数无效，无法执行任务，格式 FXDS.exe %下载链接% %保存目录%", L"FX Download Service",MB_OK);
 		return 0;
 	}
-	if (AddCode == "longlink") {
-		string CodeMode = "Long Link";
-		ifstream OpenFileDURL;
-		OpenFileDURL.open("durl.data");
-		OpenFileDURL >> durl;
-		OpenFileDURL.close();
-
-		ifstream OpenFileDSP;
-		OpenFileDSP.open("dsp.data");
-		OpenFileDSP >> dsp;
-		OpenFileDSP.close();
-		system("del durl.data");
-		system("del dsp.data");
-		goto StartDownload;
+	if (argc == 2) {
+		MessageBox(0, L"缺少保存目录参数，格式 FXDS.exe %下载链接% %保存目录%", L"FX Download Service", MB_OK);
+		return 0;
 	}
+	int ia = 0;
+	ia < argc;
+	ia++;
+
+	string durl = argv[ia];
+	ia++;
+	string dsp = argv[ia];
 
 	StartDownload:
 	LPCWSTR LcDsp = stringToLPCWSTR(dsp);
 	LPCWSTR LcDURL = stringToLPCWSTR(durl);
 
-	cout << "下载开始  " << AddCode << "  - 下载链接:" << durl << "保存地址 : " << dsp << endl;
+	cout << "下载开始  " << "  - 下载链接:" << durl << "   保存地址 : " << dsp << endl;
 
 	HRESULT applydownload = URLDownloadToFileW(
 		nullptr,
@@ -101,7 +63,7 @@ int main()
 
 	bool CDSP = isFileExists_ifstream(dsp);
 	if (CDSP) {
-		cout << "下载成功，目录" << dsp << endl;
+		cout << "下载成功，目录  " << dsp << endl;
 
 		system("echo=TRUE >>%temp%\\DownloadReport.dat");
 
