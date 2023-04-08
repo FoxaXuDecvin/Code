@@ -2,6 +2,7 @@
 // API For 7zip Tools https://www.7-zip.org/
 
 #include<Windows.h>
+#include "winapicore.h"
 #pragma comment(lib,"URlmon.lib")
 using namespace std;
 
